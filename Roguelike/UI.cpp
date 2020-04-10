@@ -2,7 +2,7 @@
 
 #include "Chars.h"
 
-#include <string>
+
 #include <sstream>
 #include <iostream>
 
@@ -253,10 +253,10 @@ void UI::printMessage(const char* message)
 	std::cout << message << std::endl;
 }
 
-void UI::Update(int playerHealth, int playerMoney, int attackDamage)
+void UI::Update(int playerHealth, int playerMoney, int attackDamage, int armour)
 {
 	std::stringstream ss;
-	ss << "Health: " << std::to_string(playerHealth) << "   Strength: " << attackDamage << "   Gold: " << std::to_string(playerMoney);
+	ss << "Health: " << std::to_string(playerHealth) << "  Armour: " << std::to_string(armour) << "  Strength: " << attackDamage << "  Gold: " << std::to_string(playerMoney);
 	std::string myString = ss.str();
 
 	this->hud = createMessage(myString.c_str());
@@ -265,6 +265,11 @@ void UI::Update(int playerHealth, int playerMoney, int attackDamage)
 
 void UI::Render(SDL_Renderer* renderer, SDL_Texture* texture)
 {
+	SDL_Rect bottomRect = {0, 576, 800, 232};
+	SDL_SetRenderDrawColor(renderer, 0, 50, 0, 255);
+	SDL_RenderFillRect(renderer, &bottomRect);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+
 	int count = 0;
 	for (auto& c : this->currentMessage)
 	{
@@ -416,5 +421,44 @@ void UI::RenderHighScore(SDL_Renderer* renderer, SDL_Texture* texture, int highm
 		SDL_Rect destRect = { xoffset + count * 16, 348, 16, 16 };
 		SDL_RenderCopy(renderer, texture, &c, &destRect);
 		count++;
+	}
+}
+
+void UI::RenderInventory(SDL_Renderer* renderer, SDL_Texture* texture, std::string inventory[3])
+{
+	std::vector<SDL_Rect> title = this->createMessage("Inventory");
+	std::vector<SDL_Rect> back = this->createMessage("[B]ack");
+
+	int count = 0;
+	int xoffset = 128;
+	for (auto& c : title)
+	{
+		SDL_Rect destRect = { xoffset + count * 16, 100, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+
+	for (auto& c : back)
+	{
+		SDL_Rect destRect = { xoffset + count * 16, 450, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+
+	std::string itemPlaces[3] = {"Right Hand: ", "Left Hand: ", "Body: "};
+
+	for (int i = 0; i < 3; i++)
+	{
+		std::stringstream ss;
+		ss << itemPlaces[i] << inventory[i];
+		std::vector<SDL_Rect> item = this->createMessage(ss.str().c_str());
+
+		int count = 0;
+		for (auto& c : item)
+		{
+			SDL_Rect destRect = { xoffset + count * 16, 150 + (i*20), 16, 16 };
+			SDL_RenderCopy(renderer, texture, &c, &destRect);
+			count++;
+		}
 	}
 }

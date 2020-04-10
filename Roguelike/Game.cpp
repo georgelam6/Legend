@@ -13,6 +13,7 @@ bool turn;
 bool useKey;
 bool menu;
 bool scores;
+bool inv;
 
 const char* startMessage = "A musty smell hits me as I enter the caves...";
 
@@ -25,8 +26,6 @@ void Game::Init()
 
 	level.GenerateLevel();
 	guy = Player(level.playerStartPos, &hud);
-
-	hud.printMessage(startMessage);
 
 	menu = true;
 	scores = false;
@@ -42,7 +41,7 @@ void Game::HandleEvents()
 			this->running = false;
 		}
 
-		if (event.type == SDL_KEYDOWN && turn && !menu && !scores)
+		if (event.type == SDL_KEYDOWN && turn && !menu && !scores && !inv)
 		{
 			turn = false;
 			useKey = false;
@@ -83,6 +82,11 @@ void Game::HandleEvents()
 					guy.isDead = false;
 				}
 				break;
+			case SDLK_e:
+				if (!guy.isDead)
+				{
+					inv = true;
+				}
 
 
 			case SDLK_SPACE: // Next level!
@@ -101,7 +105,7 @@ void Game::HandleEvents()
 		{
 			if (event.type == SDL_KEYDOWN)
 			{
-				if (menu) {
+				if (menu && !inv) {
 					switch (event.key.keysym.sym) {
 					case SDLK_s:
 						menu = false;
@@ -122,12 +126,24 @@ void Game::HandleEvents()
 						break;
 					}
 				}
-				else if (scores)
+				else if (scores && !inv)
 				{
 					switch (event.key.keysym.sym) {
 					case SDLK_b:
 						menu = true;
 						scores = false;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (inv)
+				{
+					switch (event.key.keysym.sym) {
+					case SDLK_b:
+						menu = false;
+						scores = false;
+						inv = false;
 					default:
 						break;
 					}
@@ -140,8 +156,8 @@ void Game::HandleEvents()
 
 void Game::Update()
 {
-	hud.Update(guy.health, guy.money, guy.attackDamage);
-	if (!guy.isDead)
+	hud.Update(guy.health, guy.money, guy.attackDamage, guy.armour);
+	if (!guy.isDead && !inv)
 		guy.Update(&level, useKey);
 
 	if (!turn)
@@ -156,7 +172,7 @@ void Game::Render()
 {
 	this->graphics.Clear();
 	
-	if (!menu && !scores) 
+	if (!menu && !scores && !inv) 
 	{
 		if (!guy.isDead)
 		{
@@ -175,6 +191,10 @@ void Game::Render()
 	else if (scores)
 	{
 		hud.RenderHighScore(this->graphics.renderer, this->graphics.uiSheet,  guy.highGold, guy.highMonster);
+	}
+	else if (inv)
+	{
+		hud.RenderInventory(this->graphics.renderer, this->graphics.uiSheet, guy.inventory);
 	}
 	else
 	{

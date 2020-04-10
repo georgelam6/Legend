@@ -6,7 +6,6 @@
 #include "Random.h"
 
 #include <sstream>
-#include <string>
 
 Player::Player() {}
 Player::Player(Vector2 startPos, UI* ui) :
@@ -17,9 +16,16 @@ Player::Player(Vector2 startPos, UI* ui) :
 
 	this->health = 100;
 	this->money = 0;
+	this->armour = 0;
 	this->attackDamage = 15;
 	this->lightSize = 6;
 	this->monstersKilled = 0;
+
+
+	this->inventory[0] = "";
+	this->inventory[1] = "";
+	this->inventory[2] = "";
+
 
 	this->hud = ui;
 
@@ -69,16 +75,19 @@ void Player::Update(Level* level, bool isPickupKeyPressed)
 			{
 				this->attackDamage = 25;
 				ss << "I found a " << i.type;
+				inventory[0] = i.type;
 			}
 			else if (i.type == "Axe")
 			{
 				this->attackDamage = 32;
 				ss << "I found an " << i.type;
+				inventory[0] = i.type;
 			}
 			else if (i.type == "Lantern")
 			{
 				this->lightSize = 10;
 				ss << "I found a " << i.type;
+				inventory[1] = i.type;
 			}
 			else if (i.type == "Coin")
 			{
@@ -103,6 +112,24 @@ void Player::Update(Level* level, bool isPickupKeyPressed)
 					this->health -= amount;
 					ss << "I ate too much, becoming fat and unhealthy";
 				}
+			}
+			else if (i.type == "Leather")
+			{
+				this->armour = 2;
+				ss << "I found a leather jacket";
+				inventory[2] = "Leather Jacket";
+			}
+			else if (i.type == "Rust")
+			{
+				this->armour = 4;
+				ss << "I found a suit of rusty iron armour";
+				inventory[2] = "Rusty Iron Armour";
+			}
+			else if (i.type == "Iron")
+			{
+				this->armour = 6;
+				ss << "I found a suit of shining steel armour";
+				inventory[2] = "Steel Armour";
 			}
 			
 			hud->printMessage(ss.str().c_str());
@@ -236,7 +263,7 @@ void Player::KillEnemy(Level* level, int id, const char *type)
 
 void Player::TakeDamage(const char* e, int amount)
 {
-	this->health -= amount;
+	this->health -= (amount-this->armour);
 	std::stringstream ss;
 	ss << "A " << e << " attacked me, dealing " << std::to_string(amount) << " damage!";
 	hud->printMessage(ss.str().c_str());

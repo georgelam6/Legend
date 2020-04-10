@@ -26,7 +26,19 @@ Item::Item(std::string type, Vector2 position, int id)
 	}
 	else if (this->type == "Food")
 	{
-		this->srcRect = { 192, 224, 16, 16 };
+		this->srcRect = { 112, 240, 16, 16 };
+	}
+	else if (this->type == "Leather")
+	{
+		this->srcRect = { 176, 128, 16, 16 };
+	}
+	else if (this->type == "Rust")
+	{
+		this->srcRect = { 32, 112, 16, 16 };
+	}
+	else if (this->type == "Iron")
+	{
+		this->srcRect = { 48, 80, 16, 16 };
 	}
 }
 

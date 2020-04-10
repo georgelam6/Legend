@@ -8,11 +8,11 @@ void Graphics::Init()
 	SDL_SetWindowTitle(this->window, "Legend Of Cave");
 
 	// Load the terminal spritesheet
-	SDL_Surface* tmpSurf = IMG_Load("term16.pbm");
+	SDL_Surface* tmpSurf = IMG_Load("term16.asset");
 	this->termSheet = SDL_CreateTextureFromSurface(this->renderer, tmpSurf);
 
 	// Load the UI spritesheet
-	tmpSurf = IMG_Load("MyTerm.pbm");
+	tmpSurf = IMG_Load("MyTerm.asset");
 	this->uiSheet = SDL_CreateTextureFromSurface(this->renderer, tmpSurf);
 	SDL_FreeSurface(tmpSurf);
 }

@@ -7,6 +7,8 @@
 
 #include <fstream>
 
+#include <string>
+
 class Level;
 
 class Player
@@ -29,11 +31,13 @@ public:
 	void TakeDamage(const char* e, int amount);
 
 	Vector2 position;
-	int health, money, attackDamage, lightSize, monstersKilled;
+	int health, money, attackDamage, lightSize, armour, monstersKilled;
 	bool isDead;
 
 	int highMonster;
 	int highGold;
+
+	std::string inventory[3];
 
 private:
 	SDL_Rect srcRect, destRect;

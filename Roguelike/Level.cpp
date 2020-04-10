@@ -25,6 +25,9 @@ Level::Level()
 	this->itemTypes.push_back("Axe");
 	this->itemTypes.push_back("Coin");
 	this->itemTypes.push_back("Food");
+	this->itemTypes.push_back("Leather");
+	this->itemTypes.push_back("Rust");
+	this->itemTypes.push_back("Iron");
 
 	this->randonmFillPercent = 50;
 	this->randomGrassPercent = 10;

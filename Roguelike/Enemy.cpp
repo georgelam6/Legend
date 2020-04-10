@@ -16,25 +16,25 @@ Enemy::Enemy(std::string name, Vector2 startPos, int id)
 	if (this->type == "Ogre")
 	{
 		this->health = 40;
-		this->attackDamage = 20;
+		this->attackDamage = 21;
 		this->srcRect = { 240, 96, 16,16 };
 	}
 	else if (this->type == "Elf")
 	{
 		this->health = 10;
-		this->attackDamage = 5;
+		this->attackDamage = 6;
 		this->srcRect = { 80, 96, 16,16 };
 	}
 	else if (this->type == "Goblin")
 	{
 		this->health = 50;
-		this->attackDamage = 20;
+		this->attackDamage = 21;
 		this->srcRect = { 112, 64, 16,16 };
 	}
 	else if (this->type == "Troll")
 	{
 		this->health = 50;
-		this->attackDamage = 30;
+		this->attackDamage = 31;
 		this->srcRect = { 64, 80, 16,16 };
 	}
 }
