@@ -36,10 +36,11 @@ Player::Player(Vector2 startPos, UI* ui) :
 	int count = 0;
 	while (std::getline(this->saveFileIn, line))
 	{
-		count++;
-		if (count == 1) this->highMonster = std::stoi(line);
+		if (count == 0) this->highMonster = std::stoi(line);
 		else this->highGold = std::stoi(line);
 		std::cout << this->highMonster << std::endl << this->highGold << std::endl;
+
+		count++;
 	}
 
 	this->saveFile.open("game.save");
@@ -158,7 +159,10 @@ void Player::MoveDown(Level* level)
 				}
 				else
 				{
-					this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					if (!lastAttack)
+					{
+						this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					}
 				}
 				return;
 			}
@@ -182,7 +186,10 @@ void Player::MoveUp(Level* level)
 				}
 				else
 				{
-					this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					if (!lastAttack)
+					{
+						this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					}
 				}
 				return;
 			}
@@ -206,7 +213,10 @@ void Player::MoveLeft(Level* level)
 				}
 				else
 				{
-					this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					if (!lastAttack)
+					{
+						this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					}
 				}
 				return;
 			}
@@ -224,13 +234,16 @@ void Player::MoveRight(Level* level)
 		{
 			if (mv == e.position.x && this->position.y == e.position.y)
 			{
-				if (e.TakeDamage(this->attackDamage)) 
+				if (e.TakeDamage(this->attackDamage))
 				{
 					this->KillEnemy(level, e.id, e.type.c_str());
 				}
 				else
 				{
-					this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					if (!lastAttack)
+					{
+						this->AttackEnemy(e.type.c_str(), this->attackDamage);
+					}
 				}
 				
 				return;
@@ -244,7 +257,8 @@ void Player::AttackEnemy(const char* type, int damage)
 {
 	std::stringstream ss;
 
-	ss << "I swung at the " << type << " dealing " << damage;
+	ss << "I swung at the " << type << " dealing " << damage << " damage";
+	this->lastAttack = true;
 
 	hud->printMessage(ss.str().c_str());
 }
@@ -258,6 +272,7 @@ void Player::KillEnemy(Level* level, int id, const char *type)
 
 	hud->printMessage(ss.str().c_str());
 
+	this->lastAttack = true;
 	this->monstersKilled++;
 }
 
@@ -265,6 +280,7 @@ void Player::TakeDamage(const char* e, int amount)
 {
 	this->health -= (amount-this->armour);
 	std::stringstream ss;
+	this->lastAttack = false;
 	ss << "A " << e << " attacked me, dealing " << std::to_string(amount) << " damage!";
 	hud->printMessage(ss.str().c_str());
 }

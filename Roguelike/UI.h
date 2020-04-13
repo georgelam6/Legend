@@ -14,12 +14,15 @@ public:
 	void Update(int playerHealth, int playerMoney, int attackDamage, int armour);
 	void Render(SDL_Renderer* renderer, SDL_Texture* texture);
 	void RenderEndScreen(SDL_Renderer* renderer, SDL_Texture* texture, int monstersKilled, int money);
+	void RenderWinScreen(SDL_Renderer* renderer, SDL_Texture* texture, int monstersKilled, int money);
 	void RenderHighScore(SDL_Renderer* renderer, SDL_Texture* texture, int highmoney, int highmonster);
-	void RenderMainMenu(SDL_Renderer* renderer, SDL_Texture* texture);
+	void RenderMainMenu(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Texture* men);
 	void RenderInventory(SDL_Renderer* renderer, SDL_Texture* texture, std::string inventory[3]);
 
 private:
 	std::vector<SDL_Rect> currentMessage;
+	std::vector<SDL_Rect> lastMessage;
+	std::vector<SDL_Rect> lastMessage2;
 	std::vector<SDL_Rect> hud;
 };
 

@@ -14,6 +14,7 @@ bool useKey;
 bool menu;
 bool scores;
 bool inv;
+bool hasWon;
 
 const char* startMessage = "A musty smell hits me as I enter the caves...";
 
@@ -24,11 +25,12 @@ void Game::Init()
 	SDL_Init(SDL_INIT_EVERYTHING);
 	this->graphics.Init();
 
-	level.GenerateLevel();
+	level.GenerateLevel(true);
 	guy = Player(level.playerStartPos, &hud);
 
 	menu = true;
 	scores = false;
+	hasWon = false;
 }
 
 void Game::HandleEvents()
@@ -41,7 +43,7 @@ void Game::HandleEvents()
 			this->running = false;
 		}
 
-		if (event.type == SDL_KEYDOWN && turn && !menu && !scores && !inv)
+		if (event.type == SDL_KEYDOWN && turn && !menu && !scores && !inv && !hasWon)
 		{
 			turn = false;
 			useKey = false;
@@ -60,6 +62,9 @@ void Game::HandleEvents()
 				guy.MoveDown(&level);
 				break;
 
+			case SDLK_F1:
+				this->graphics.ToggleGraphicsMode();
+
 			case SDLK_q:
 				if (guy.isDead)
 				{
@@ -74,7 +79,7 @@ void Game::HandleEvents()
 			case SDLK_r:
 				if (guy.isDead)
 				{
-					level.GenerateLevel();
+					if (level.GenerateLevel(true)) hasWon = true;
 					guy = Player(level.playerStartPos, &hud);
 
 					hud.printMessage(startMessage);
@@ -93,7 +98,7 @@ void Game::HandleEvents()
 				useKey = true;
 				if (guy.position.x == level.doorPos.x && guy.position.y == level.doorPos.y)
 				{
-					level.GenerateLevel();
+					if (level.GenerateLevel(false)) hasWon = true;
 					guy.position = level.playerStartPos;
 				}
 				break;
@@ -109,7 +114,7 @@ void Game::HandleEvents()
 					switch (event.key.keysym.sym) {
 					case SDLK_s:
 						menu = false;
-						level.GenerateLevel();
+						if (level.GenerateLevel(true)) hasWon = true;
 						guy = Player(level.playerStartPos, &hud);
 
 						hud.printMessage(startMessage);
@@ -126,12 +131,40 @@ void Game::HandleEvents()
 						break;
 					}
 				}
-				else if (scores && !inv)
+				else if (scores && !inv && !hasWon)
 				{
 					switch (event.key.keysym.sym) {
 					case SDLK_b:
 						menu = true;
 						scores = false;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (hasWon)
+				{
+					std::cout << "hi" << std::endl;
+					switch (event.key.keysym.sym) {
+					case SDLK_q:
+						menu = true;
+						hasWon = false;
+						scores = false;
+						inv = false;
+						break;
+					
+					case SDLK_r:
+						menu = false;
+						hasWon = false;
+						scores = false;
+						inv = false;
+
+						level.GenerateLevel(true);
+						guy = Player(level.playerStartPos, &hud);
+
+						hud.printMessage(startMessage);
+
+						guy.isDead = false;
 						break;
 					default:
 						break;
@@ -157,14 +190,14 @@ void Game::HandleEvents()
 void Game::Update()
 {
 	hud.Update(guy.health, guy.money, guy.attackDamage, guy.armour);
-	if (!guy.isDead && !inv)
+	if (!guy.isDead && !inv && !hasWon)
 		guy.Update(&level, useKey);
 
 	if (!turn)
 	{
 		turn = true;
 
-		level.Update(&guy);
+		if (!guy.isDead) level.Update(&guy);
 	}
 }
 
@@ -172,7 +205,7 @@ void Game::Render()
 {
 	this->graphics.Clear();
 	
-	if (!menu && !scores && !inv) 
+	if (!menu && !scores && !inv && !hasWon) 
 	{
 		if (!guy.isDead)
 		{
@@ -196,9 +229,13 @@ void Game::Render()
 	{
 		hud.RenderInventory(this->graphics.renderer, this->graphics.uiSheet, guy.inventory);
 	}
+	else if (hasWon)
+	{
+		hud.RenderWinScreen(this->graphics.renderer, this->graphics.uiSheet, guy.monstersKilled, guy.money);
+	}
 	else
 	{
-		hud.RenderMainMenu(this->graphics.renderer, this->graphics.uiSheet);
+		hud.RenderMainMenu(this->graphics.renderer, this->graphics.uiSheet, this->graphics.backgroundMenu);
 	}
 
 

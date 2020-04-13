@@ -249,6 +249,8 @@ std::vector<SDL_Rect> UI::createMessage(const char *message)
 
 void UI::printMessage(const char* message)
 {
+	this->lastMessage2 = this->lastMessage;
+	this->lastMessage = this->currentMessage;
 	this->currentMessage = this->createMessage(message);
 	std::cout << message << std::endl;
 }
@@ -266,14 +268,32 @@ void UI::Update(int playerHealth, int playerMoney, int attackDamage, int armour)
 void UI::Render(SDL_Renderer* renderer, SDL_Texture* texture)
 {
 	SDL_Rect bottomRect = {0, 576, 800, 232};
+	SDL_Rect topRect = { 0, 0, 800, 16 };
 	SDL_SetRenderDrawColor(renderer, 0, 50, 0, 255);
 	SDL_RenderFillRect(renderer, &bottomRect);
+	SDL_RenderFillRect(renderer, &topRect);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 
 	int count = 0;
 	for (auto& c : this->currentMessage)
 	{
-		SDL_Rect destRect = { count*16, 576, 16, 16 };
+		SDL_Rect destRect = { count*16, 608, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+	
+	count = 0;
+	for (auto& c : this->lastMessage)
+	{
+		SDL_Rect destRect = { count * 16, 592, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+
+	count = 0;
+	for (auto& c : this->lastMessage2)
+	{
+		SDL_Rect destRect = { count * 16, 576, 16, 16 };
 		SDL_RenderCopy(renderer, texture, &c, &destRect);
 		count++;
 	}
@@ -281,7 +301,7 @@ void UI::Render(SDL_Renderer* renderer, SDL_Texture* texture)
 	count = 0;
 	for (auto& c : this->hud)
 	{
-		SDL_Rect destRect = { count * 16, 592, 16, 16 };
+		SDL_Rect destRect = { count * 16, 0, 16, 16 };
 		SDL_RenderCopy(renderer, texture, &c, &destRect);
 		count++;
 	}
@@ -332,15 +352,69 @@ void UI::RenderEndScreen(SDL_Renderer* renderer, SDL_Texture* texture, int monst
 	}
 }
 
-void UI::RenderMainMenu(SDL_Renderer* renderer, SDL_Texture* texture)
+void UI::RenderWinScreen(SDL_Renderer* renderer, SDL_Texture* texture, int monstersKilled, int money)
+{
+	std::vector<SDL_Rect> endText = this->createMessage("I Escaped the caves, my pockets full.");
+	std::vector<SDL_Rect> instruction1 = this->createMessage("[Q]uit");
+	std::vector<SDL_Rect> instruction2 = this->createMessage("[R]estart");
+
+	std::stringstream ss;
+	ss << "Monsters Slain: " << monstersKilled << "  Gold Collected: " << money;
+	std::vector<SDL_Rect> score = this->createMessage(ss.str().c_str());
+
+	int count = 0;
+	int xoffset = 128;
+
+	for (auto& c : endText)
+	{
+		SDL_Rect destRect = { xoffset + count * 16, 250, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+
+	count = 0;
+	for (auto& c : score)
+	{
+		SDL_Rect destRect = { xoffset + count * 16, 300, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+
+	count = 0;
+	for (auto& c : instruction1)
+	{
+		SDL_Rect destRect = { xoffset + count * 16, 332, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+	count = 0;
+	for (auto& c : instruction2)
+	{
+		SDL_Rect destRect = { xoffset + count * 16, 348, 16, 16 };
+		SDL_RenderCopy(renderer, texture, &c, &destRect);
+		count++;
+	}
+}
+
+void UI::RenderMainMenu(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Texture* men)
 {
 	std::vector<SDL_Rect> endText = this->createMessage("LEGEND OF CAVE");
 	std::vector<SDL_Rect> instruction1 = this->createMessage("[S]tart");
 	std::vector<SDL_Rect> instruction2 = this->createMessage("[H]igh Score");
 	std::vector<SDL_Rect> instruction3 = this->createMessage("[Q]uit");
 
+
+	SDL_Rect d = { 0,0,808,616 };
+	SDL_RenderCopy(renderer, men, NULL, &d);
+
+
 	int count = 0;
 	int xoffset = 128;
+
+	SDL_Rect backRect = { 100, 230, 300, 150 };
+	SDL_SetRenderDrawColor(renderer, 57, 56, 86, 255);
+	SDL_RenderFillRect(renderer, &backRect);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
 	for (auto& c : endText)
 	{

@@ -16,13 +16,15 @@ class Level
 public:
 	Level();
 	Level(SDL_Texture* image);
-	void GenerateLevel();
+	bool GenerateLevel(bool reset);
 	void RandomFillMap();
+	void RandomGrassMap();
 	void SmoothMap();
 	void FindPathToDoor();
 	Vector2 createPlayerStartPos();
 	Vector2 CreateDoorPos();
 	int GetSurroundingWallCount(int gridX, int gridY);
+	bool isRectangleFree(int x, int y, int w, int h);
 	void KillEnemy(int id);
 	void PickupItem(int id);
 	void SpawnEnemies();
@@ -44,9 +46,14 @@ private:
 	SDL_Rect floorSrcRect;
 	SDL_Rect doorSrcRect;
 	SDL_Rect corpseSrcRect;
+	SDL_Rect grassSrcRect;
 
 	std::vector<std::string> enemyTypes;
 	std::vector<std::string> itemTypes;
+
+	int maxLevels;
+	int levelCount;
+	int spawns[10] = {20, 50, 50, 50, 100, 150, 200, 200, 150, 100};
 
 
 	// Procedual generation vars

@@ -12,12 +12,15 @@ Level::Level()
 	this->floorSrcRect = { 160, 240, 16, 16 };
 	this->doorSrcRect = { 224, 48,  16, 16 };
 	this->corpseSrcRect = { 80, 32, 16, 16 };
+	this->grassSrcRect = { 176,32,16,16 };
 
 	this->enemyTypes.clear();
 	this->enemyTypes.push_back("Ogre");
 	this->enemyTypes.push_back("Elf");
 	this->enemyTypes.push_back("Goblin");
 	this->enemyTypes.push_back("Troll");
+	this->enemyTypes.push_back("Snake");
+	this->enemyTypes.push_back("Bat");
 
 	this->itemTypes.clear();
 	this->itemTypes.push_back("Sword");
@@ -31,11 +34,26 @@ Level::Level()
 
 	this->randonmFillPercent = 50;
 	this->randomGrassPercent = 10;
+
+	this->maxLevels = 10;
+	this->levelCount = 0;
 }
 
 
-void Level::GenerateLevel()
+bool Level::GenerateLevel(bool reset)
 {
+	if (reset)
+	{
+		this->levelCount = 0;
+	}
+
+	this->levelCount++;
+
+	if (this->levelCount > this->maxLevels)
+	{
+		return true;
+	}
+
 	// Set the map to NULL
 	for (int x = 0; x < Globals::levelWidth; x++)
 	{
@@ -57,14 +75,14 @@ void Level::GenerateLevel()
 
 	this->SpawnEnemies();
 	this->SpawnItems();
-
 	
+	return false;
 }
 
 void Level::SpawnEnemies()
 {
 	int count = 1;
-	for (int i = 0; i < Random::randint(15, 50); i++)
+	for (int i = 0; i < Random::randint(15, this->spawns[this->levelCount]); i++)
 	{
 		Vector2 r = Vector2(Random::randint(0, Globals::levelWidth), Random::randint(0, Globals::levelHeight));
 		if (map[r.x][r.y] == 0 && GetSurroundingWallCount(r.x, r.y) == 0)
@@ -78,16 +96,19 @@ void Level::SpawnEnemies()
 void Level::SpawnItems()
 {
 	int count = 1;
-	for (int i = 0; i < Random::randint(15, 50); i++)
+	for (int i = 0; i < Random::randint(15, this->spawns[this->levelCount]); i++)
 	{
 		Vector2 r = Vector2(Random::randint(0, Globals::levelWidth), Random::randint(0, Globals::levelHeight));
-		if (map[r.x][r.y] == 0 && GetSurroundingWallCount(r.x, r.y) == 0)
+		if (map[r.x][r.y] == 0 && GetSurroundingWallCount(r.x, r.y) == 0 && r.x != this->doorPos.x && r.y != this->doorPos.y && r.y != this->playerStartPos.y && r.x != this->playerStartPos.x)
 		{
 			items.push_back(Item(this->itemTypes.at(Random::randint(0, itemTypes.size() - 1)), r, count));
 			count += 1;
 		}
 	}
 }
+
+
+
 
 void Level::FindPathToDoor()
 {
@@ -118,7 +139,9 @@ void Level::FindPathToDoor()
 					currentPosition.y += 1;
 				}
 
-				this->map[currentPosition.x][currentPosition.y] = 0;
+				if (this->map[currentPosition.x][currentPosition.y] == 1)
+					this->map[currentPosition.x][currentPosition.y] = 0;
+
 				if (currentPosition.x == playerStartPos.x && currentPosition.y == playerStartPos.y)
 				{
 					foundPath = true;
@@ -144,6 +167,27 @@ void Level::RandomFillMap()
 					map[x][y] = 1;
 				else
 					map[x][y] = 0;
+			}
+		}
+	}
+}
+
+void Level::RandomGrassMap()
+{
+	for (int x = 0; x < Globals::levelWidth; x++)
+	{
+		for (int y = 0; y < Globals::levelHeight; y++)
+		{
+			if (x == 0 || x == Globals::levelWidth - 1 || y == 0 || y == Globals::levelHeight - 1)
+			{
+				map[x][y] = 1;
+			}
+			else
+			{
+				if (Random::randint(0, 100) < randomGrassPercent)
+					map[x][y] = 4;
+				else
+					map[x][y] = map[x][y];
 			}
 		}
 	}
@@ -223,6 +267,24 @@ int Level::GetSurroundingWallCount(int gridx, int gridy)
 }
 
 
+bool Level::isRectangleFree(int xpos, int ypos, int w, int h)
+{
+	bool foundWall = false;
+
+	for (int x = xpos; x < xpos+w; x++)
+	{
+		for (int y = ypos; y < ypos+h; y++)
+		{
+			if (map[x][y] == 0)
+			{
+				foundWall = true;
+			}
+		}
+	}
+
+	return foundWall;
+}
+
 void Level::Render(SDL_Renderer *renderer, SDL_Texture* texture, Vector2 playerPos, int lightSize)
 {
 	bool render = false;
@@ -256,6 +318,12 @@ void Level::Render(SDL_Renderer *renderer, SDL_Texture* texture, Vector2 playerP
 				{
 					SDL_Rect destRect = { x * Globals::gridCellSize, y * Globals::gridCellSize, Globals::scaledSpriteSize, Globals::scaledSpriteSize };
 					SDL_RenderCopy(renderer, texture, &this->corpseSrcRect, &destRect);
+				}
+
+				if (this->map[x][y] == 4)
+				{
+					SDL_Rect destRect = { x * Globals::gridCellSize, y * Globals::gridCellSize, Globals::scaledSpriteSize, Globals::scaledSpriteSize };
+					SDL_RenderCopy(renderer, texture, &this->grassSrcRect, &destRect);
 				}
 			}
 		}

@@ -37,6 +37,18 @@ Enemy::Enemy(std::string name, Vector2 startPos, int id)
 		this->attackDamage = 31;
 		this->srcRect = { 64, 80, 16,16 };
 	}
+	else if (this->type == "Snake")
+	{
+		this->health = 10;
+		this->attackDamage = 10;
+		this->srcRect = { 48, 112, 16,16 };
+	}
+	else if (this->type == "Bat")
+	{
+		this->health = 10;
+		this->attackDamage = 15;
+		this->srcRect = { 32, 96, 16,16 };
+	}
 }
 
 void Enemy::Update(Player* guy, int map[Globals::levelWidth][Globals::levelHeight])

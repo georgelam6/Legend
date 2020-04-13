@@ -34,6 +34,8 @@ public:
 	int health, money, attackDamage, lightSize, armour, monstersKilled;
 	bool isDead;
 
+	bool lastAttack;
+
 	int highMonster;
 	int highGold;
 
@@ -44,5 +46,6 @@ private:
 	UI* hud;
 	std::ifstream saveFileIn;
 	std::ofstream saveFile;
+	
 
 };
